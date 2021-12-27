@@ -2,9 +2,11 @@ import os
 import yaml
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+import urllib.request
 
 presence = EC.presence_of_element_located
 
@@ -16,16 +18,19 @@ profile_username = config["username"]
 profile_password = config["password"]
 
 #%%
-browser = webdriver.Firefox()
+options = Options()
+options.binary = "/home/anton/tools/firefox/firefox"
+
+browser = webdriver.Firefox(options=options)
 
 #%%
-browser.get("https://www.instagram.com/")
+browser.get('https://www.instagram.com/')
 
 #%%
 wait = WebDriverWait(browser, 10)
 wait_ignore = WebDriverWait(browser, 10, ignored_exceptions=[NoSuchElementException, TimeoutException])
 
-browser.implicitly_wait(10)
+browser.implicitly_wait(20)
 
 login = wait.until(presence((By.XPATH, "//input[@name='username']")))
 password = wait.until(presence((By.XPATH, "//input[@name='password']")))
@@ -43,7 +48,8 @@ not_now_notifications.click()
 
 #%%
 
-browser.get(f"https://www.instagram.com/{profile_username}")
+target_profile = "cristiano"
+browser.get(f"https://www.instagram.com/{target_profile}")
 
 #%%
 profile_icon = browser.find_element(By.XPATH, "//span[@class='_2dbep qNELH']")
@@ -51,9 +57,15 @@ profile_icon.click()
 
 #%%
 
-items = browser.find_elements(By.XPATH, "//div[@class='v1Nh3 kIKUG  _bz0w']")
+items = browser.find_elements(By.XPATH, "//div[@class='eLAPa']")
 print(items)
 items[0].click()
+
+#%%
+image_element = wait.until(presence((By.XPATH, "//img[@class='FFVAD']")))
+print(image_element)
+image_source = image_element.get_attribute("src")
+urllib.request.urlretrieve(image_source, "result.jpg")
 
 #%%
 browser.quit()
